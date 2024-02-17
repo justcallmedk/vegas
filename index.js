@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import OddsAPI from './modules/odds-api.js'
-import APIKey from './modules/api-key.js';
+import {API_KEY} from './modules/api-key.js';
 const run = async () => {
-  const apiKey = APIKEY.OddsAPI;
+  const apiKey = API_KEY.OddsAPI;
   const myOddsAPI = new OddsAPI(apiKey);
   myOddsAPI.printApiKey();
   //get NCAB sports key
