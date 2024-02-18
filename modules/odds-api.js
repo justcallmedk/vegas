@@ -1,4 +1,4 @@
-export default class OddsAPI{
+module.exports = class OddsAPI{
   constructor(apiKey) {
     this.host = 'https://api.the-odds-api.com';
     this.apiKey = apiKey;
