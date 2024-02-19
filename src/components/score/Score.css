@@ -1,0 +1,55 @@
+.sport {
+  width: 100%;
+  float:left;
+}
+.sport div {
+  float: left;
+}
+.sport .commence-time {
+  float:right;
+}
+.sport .home {
+  width:350px;
+}
+.sports .at {
+  margin-right:5px;
+}
+.sports .bar, .sports .progress, .sports .indicator {
+  height:15px;
+}
+.sports .bar {
+  margin: 5px 0 0 0;
+  border: 1px solid #000;
+  width:100%;
+}
+.sports .bar .progress {
+  background-color: #000;
+  width: 30%; /* dynamic game progression */
+}
+.sports .indicator {
+  width: 3px;
+  margin-top: -16px;
+}
+.sports .score {
+  margin-left: 20px; /* dynamic current score */
+  background-color: green;
+}
+.sports .projection {
+  margin-left: 60px; /* dynamic score projection  */
+  background-color: red;
+}
+.sports .odds-line {
+  margin-left: 80px; /* dynamic odds line projection  */
+  background-color: blue;
+}
+.sports .data {
+  width:100%;
+  margin: 5px 0 10px 0;
+}
+.sports .data div {
+  padding: 2px 10px;
+  margin: 0 10px 0 0;
+}
+.sports .data .odds-line {
+  color: #fff;
+}
