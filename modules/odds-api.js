@@ -29,9 +29,9 @@ module.exports = class OddsAPI{
     return data;
   }
 
-  async getOdds(sportsId,eventId,markets) {
+  async getOdds(sportsId,markets) {
     const response = await fetch(this.host +
-      '/v4/sports/' + sportsId + '/events/' + eventId + '/odds?apiKey=' +
+      '/v4/sports/' + sportsId + '/odds?apiKey=' +
       this.apiKey +
       '&regions=us&markets=' + markets,{
     });

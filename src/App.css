@@ -6,17 +6,26 @@ a {
   font-weight: 700;
   text-align: center;
 }
+.message {
+  text-align: center;
+}
 .sports {
   width:800px;
   margin:auto;
+}
+.sports div:last-child {
+  margin-bottom: 20px;
 }
 .footer {
   position: fixed;
   text-align: right;
   bottom: 0;
   width: 100%;
+  background-color: #000;
+  color: #fff;
+  padding:5px 0;
 }
-.footer .online-counter {
+.footer .stats {
   margin-right: 10px;
 }
 .footer .contact-me{

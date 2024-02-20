@@ -10,15 +10,18 @@ const myOddsAPI = new OddsAPI(apiKey);
 
 const PORT = 7011;
 const REFRESH_INTERVAL = 30000;
+const MARKETS = 'totals';
 
 const run = async() => {
+  let userCount = 0;
+  let apiCallCount = 0;
+  let cache = {};
+
   const sportsId = await myOddsAPI.getSportsKey('NCAAB');
+  apiCallCount++;
+
   let app = express();
   app.use(cors());
-
-  let usersCount = 0;
-  let cacheCount = 0;
-  let cache = {};
 
   const server = http.createServer(app);
   const io = socketIO(server, {
@@ -31,24 +34,66 @@ const run = async() => {
 
 
   //cache logic
-  let refreshCounter = 0;
   const generateCache = async () => {
+    //don't fetch anything until one hour before the game
     if(cache.scores && cache.scores.firstCommenceTime &&
-       cache.scores.firstCommenceTime > Date.now()) {
-      console.info('no game commenced, skipping');
+       cache.scores.firstCommenceTime > Date.now() - (60 * 60 * 1000)) {
       return;
     }
 
-    console.log('getting cache');
-    const data = await myOddsAPI.getScores(sportsId);
-    if(!data || data.length === 0){
+    let oddsData = await myOddsAPI.getOdds(sportsId,MARKETS);
+    oddsData = new Map(oddsData.map(obj => [obj.id, obj.bookmakers]));
+    let dataTemp = await myOddsAPI.getScores(sportsId);
+    apiCallCount = apiCallCount + 2;
+
+    let data = [];
+    //if error
+    if(dataTemp.message) {
+      console.error(dataTemp.message);
+      io.emit('message',dataTemp.message);
       return;
     }
-    cacheCount++;
+    //if empty data, flush cache
+    if(!dataTemp || dataTemp.length === 0){
+      cache = {};
+      return;
+    }
+
+    if(!cache.scores || !cache.scores.firstCommenceTime) {
+      //sort by commence time for the first time, in case data doesn't come in sorted
+      data = data.sort((a,b) => {
+        const keyA = Date.parse(a.commence_time);
+        const keyB = Date.parse(b.commence_time);
+        if (keyA < keyB) return -1;
+        if (keyA > keyB) return 1;
+        return 0;
+      });
+    }
+
+    //filter out future events
+    for(const datum of dataTemp) {
+      //only get today's game
+      const commenceTime = new Date(datum.commence_time);
+      const commenceTimeWest = new Date(datum.commence_time);
+      commenceTimeWest.setHours(commenceTime.getHours()-8); //convert to west coast time
+      const todaysDate = new Date();
+      //if the game starts today before OR after time conversion
+      if( commenceTime.setHours(0,0,0,0) === todaysDate.setHours(0,0,0,0) ||
+        commenceTimeWest.setHours(0,0,0,0) === todaysDate.setHours(0,0,0,0)) {
+        if(oddsData.has(datum.id)) {
+          datum.odds = oddsData.get(datum.id);
+        }
+        data.push(datum);
+      }
+    }
+
     cache.scores = {
-      data : data,
-      count : cacheCount,
-      firstCommenceTime : Date.parse(data[0].commence_time)
+      data: data,
+      timestamp : Date.now(),
+      stats: {
+        apiCallCount: apiCallCount,
+        cacheSize: Object.keys(cache).length * data.length
+      }
     };
   };
   const refreshCache = () => {
@@ -64,18 +109,12 @@ const run = async() => {
   console.log('server running on ' + PORT);
 
   io.on('connection', (socket) => {
-    usersCount++;
-    io.emit('usersCount',usersCount);
+    userCount++;
+    io.emit('userCount',userCount);
 
     socket.on('disconnect', () => {
-      usersCount--;
-      io.emit('usersCount',usersCount);
-    });
-
-    //TODO may not be used
-    socket.on('list', async (test) => {
-      const eventsData = await myOddsAPI.getEvents(sportsId);
-      io.to(socket.id).emit('list', eventsData);
+      userCount--;
+      io.emit('userCount',userCount);
     });
 
     socket.on('scores', async (test) => {
