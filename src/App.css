@@ -13,9 +13,6 @@ a {
   width:800px;
   margin:auto;
 }
-.sports div:last-child {
-  margin-bottom: 20px;
-}
 .footer {
   position: fixed;
   text-align: right;

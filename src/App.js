@@ -3,24 +3,28 @@ import io from 'socket.io-client';
 import './App.css';
 import Score from './components/score/Score.js'
 
-const UPDATE_INTERVAL = 30;
+const REFRESH_INTERVAL = 30; //TODO move to config.js
+
 function App() {
   const [socket, setSocket] = useState(null);
   const [sports, setSports] = useState(null);
   const [message, setMessage] = useState(null);
   const [userCount, setUserCount] = useState(null);
+  const [scores, setScores] = useState(null);
   const [stats, setStats] = useState({});
-  const [counter, setCounter] = useState(UPDATE_INTERVAL);
+  const [counter, setCounter] = useState(REFRESH_INTERVAL);
 
   useEffect(() => {
     if(!socket) {
-
       const port = window.location.hostname === 'localhost' ? ':' + 7011 : '';
       const newSocket = io(`//${window.location.hostname}` + port, {path:'/socket/io'});
       setSocket(newSocket);
     }
   }, []);
 
+  useEffect(() => {
+    setScores(listSports(sports));
+  }, [sports]);
 
   let interval;
   useEffect(() => {
@@ -30,7 +34,7 @@ function App() {
 
     socket.on('scores', (data) => {
       clearInterval(interval);
-      setCounter(UPDATE_INTERVAL);
+      setCounter(REFRESH_INTERVAL);
       setSports(data);
       setStats({
         api: data.stats.apiCallCount,
@@ -46,6 +50,7 @@ function App() {
     socket.on('connect_error', (data) => {
       setMessage('Unable to connect to the backed :(');
     });
+
     socket.on('userCount', (data) => {
       setUserCount(data);
     });
@@ -62,6 +67,7 @@ function App() {
     if(!data)
       return;
 
+    console.info(data.data);
     let sports = [];
     for(const datum of data.data) {
       sports.push(
@@ -84,8 +90,13 @@ function App() {
         {message}
       </div>
       <div className="sports">
-        {listSports(sports)}
+        {scores}
       </div>
+      <div style={{
+        'marginBottom':'40px',
+        'width':'100%',
+        'float':'left'
+      }}></div>
       <div className="footer">
         <div className="contact-me">
           <a href="mailto:innate.worship-0r@icloud.com">Contact</a>

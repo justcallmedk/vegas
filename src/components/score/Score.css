@@ -8,7 +8,7 @@
 .sport .commence-time {
   float:right;
 }
-.sport .home {
+.sport .away {
   width:350px;
 }
 .sports .at {
@@ -23,7 +23,7 @@
   width:100%;
 }
 .sports .bar .progress {
-  background-color: #000;
+  background-color: lightgreen;
   width: 30%; /* dynamic game progression */
 }
 .sports .indicator {
@@ -52,4 +52,24 @@
 }
 .sports .data .odds-line {
   color: #fff;
+}
+.sports .live {
+  color: red;
+  float: right;
+  position: relative;
+  right: -120px;
+}
+.sports .blink {
+  animation: blinker 2s linear infinite;
+}
+.sports .pregame-odds{
+  color: blue;
+  float: right;
+  position: relative;
+  right: -135px;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
 }
